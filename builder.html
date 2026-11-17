@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShopBot Studio — Bikin Bot CS Tokomu Sendiri dalam 60 Detik</title>
+<meta name="description" content="Isi katalog tokomu, dapat link bot CS yang jawab harga, stok, ongkir, cara bayar, dan lacak pesanan — tanpa coding, tanpa daftar, gratis.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#1a1a1a;background:#fafafa;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto;padding:24px 18px 48px}
+header{font-weight:800;font-size:14px;letter-spacing:.04em;color:#0b6e4f}
+h1{font-size:30px;line-height:1.2;margin:14px 0 10px}
+h2{font-size:20px;margin:28px 0 10px}
+p{margin:0 0 12px;color:#333}
+.lede{font-size:17px;color:#444}
+.cta{display:inline-block;background:#0b6e4f;color:#fff;font-weight:700;text-decoration:none;padding:12px 20px;border-radius:10px;margin:8px 8px 0 0;border:0;cursor:pointer;font-size:16px}
+.cta.ghost{background:#fff;color:#0b6e4f;border:2px solid #0b6e4f}
+.card{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:16px;margin:10px 0}
+.muted{color:#666;font-size:14px}
+label{display:block;font-weight:700;font-size:14px;margin:12px 0 4px}
+input,textarea{width:100%;padding:10px 12px;border:1px solid #ccc;border-radius:8px;font-size:15px;font-family:inherit}
+textarea{resize:vertical}
+.prod{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin:6px 0}
+.prod input{padding:8px 10px}
+#result{display:none}
+#result input{font-size:13px}
+#errors{color:#b00020;font-weight:700}
+.note{background:#fff8e1;border:1px solid #ffe082;border-radius:12px;padding:16px;margin:10px 0}
+footer{margin-top:36px;font-size:13px;color:#777}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>SHOPBOT STUDIO — IDEALAB HACKS 2026</header>
+<h1>Bikin bot CS tokomu sendiri dalam 60 detik.</h1>
+<p class="lede">Isi katalog toko di bawah, klik <b>Bikin Bot Gue</b>, langsung dapat link bot yang jawab harga, stok, ongkir, cara bayar, dan lacak pesanan — sementara lu tidur atau lagi packing orderan. Tanpa coding, tanpa daftar, tanpa bayar.</p>
+<p><a class="cta ghost" href="/demo">Coba Demo Dulu (Toko Kirana)</a></p>
+
+<h2>1 · Data tokomu</h2>
+<div class="card">
+<label>Nama toko *</label>
+<input id="name" placeholder="cth: Toko Baju Kirana" maxlength="60">
+<label>Kota</label>
+<input id="city" placeholder="cth: Bandung" maxlength="60">
+<label>Jam buka</label>
+<input id="hours" placeholder="cth: Senin-Sabtu 09.00-21.00 WIB" maxlength="120">
+<label>Link WhatsApp admin (opsional)</label>
+<input id="adminWa" placeholder="cth: https://wa.me/62812xxxx" maxlength="120">
+<label>Ongkir</label>
+<input id="shipCost" placeholder="cth: Jabodetabek Rp 10.000, Jawa Rp 15.000-25.000" maxlength="200">
+<label>Estimasi sampai</label>
+<input id="shipEta" placeholder="cth: Jawa 1-3 hari, luar Jawa 3-7 hari" maxlength="120">
+<label>Gratis ongkir untuk belanja min (Rp, 0 = tidak ada)</label>
+<input id="freeMin" type="number" min="0" value="300000">
+<label>Cara bayar (pisah dengan koma)</label>
+<input id="payMethods" placeholder="cth: QRIS, Transfer BCA, COD khusus Bandung" maxlength="200">
+</div>
+
+<h2>2 · Produkmu (isi 1–6)</h2>
+<div class="card" id="products"></div>
+
+<p id="errors"></p>
+<button class="cta" id="buildBtn" type="button">Bikin Bot Gue →</button>
+<button class="cta ghost" id="fillBtn" type="button">Isi Contoh</button>
+
+<div class="card" id="result">
+<b>Bot lu jadi! 🎉</b>
+<p class="muted">Bagikan link ini ke pelanggan — taruh di bio/profil WhatsApp toko, atau kirim langsung ke chat.</p>
+<input id="botUrl" readonly>
+<p><button class="cta" id="copyBtn" type="button">Salin Link</button>
+<a class="cta ghost" id="tryBtn" href="#" target="_blank">Coba Bot Gue</a></p>
+<p class="muted">Link ini berisi data tokomu sendiri (bukan disimpan di server mana pun). Ubah katalog? Isi form lagi, dapat link baru.</p>
+</div>
+
+<h2>Yang dijawab bot</h2>
+<div class="card"><b>💰 Harga &amp; stok</b> “Kemeja berapa?” — bot jawab harga + stok langsung dari katalog lu.</div>
+<div class="card"><b>🚚 Ongkir &amp; estimasi sampai</b> “Ongkir ke Jakarta berapa?” — bot jawab tarif + berapa hari sampai.</div>
+<div class="card"><b>💳 Cara bayar</b> QRIS, transfer, COD — bot jelasin + minta bukti bayar.</div>
+<div class="card"><b>📦 Lacak pesanan</b> Pelanggan kirim nomor order, bot kasih status + resi (kalau lu isi data order contoh).</div>
+<div class="card"><b>🧑‍💼 Yang susah → admin</b> Komplain dan pertanyaan aneh diteruskan ke lu, bukan dijawab ngarang.</div>
+
+<div class="note"><b>Yang jujur dulu:</b> bot ini <b>bukan</b> WhatsApp Business API — API itu berbayar per pesan dan butuh nomor bisnis + persetujuan Meta. Bot jalan lewat <b>link webchat</b> yang pelanggan buka dari profil/bio WhatsApp toko lu. Yang bot gantiin cuma jawab pertanyaan berulang — bukan gantiin lu sepenuhnya. Bot juga <b>tidak menyimpan</b> data toko di server: semua data ada di dalam link bot itu sendiri.</div>
+
+<footer>ShopBot Studio — dibuat untuk IdeaLab Hacks 2026 (30 Nov 2026). Mesin jawab FAQ diadaptasi dari CS Bot Toko (RichCommunity Studio, pilot 14 Nov 2026); builder, link bot yang bisa dibagikan, dan validasi dibuat baru selama hackathon. Tanpa AI generatif: bot tidak mengarang jawaban. Harga: Rp 0, selamanya, jalan di Cloudflare Workers free tier.</footer>
+</div>
+<script>
+var prodBox=document.getElementById('products');
+function prodRow(i){
+  var d=document.createElement('div');d.className='prod';
+  d.innerHTML='<input placeholder="Nama produk" maxlength="60" data-f="name">'+
+    '<input placeholder="Harga Rp" type="number" min="1000" data-f="price">'+
+    '<input placeholder="Stok" type="number" min="0" data-f="stock">';
+  prodBox.appendChild(d);
+}
+for(var i=0;i<6;i++)prodRow(i);
+function readForm(){
+  var products=[];
+  prodBox.querySelectorAll('.prod').forEach(function(row){
+    var name=row.querySelector('[data-f=name]').value.trim();
+    var price=parseInt(row.querySelector('[data-f=price]').value,10);
+    var stock=parseInt(row.querySelector('[data-f=stock]').value,10);
+    if(name)products.push({name:name,price:price,stock:isNaN(stock)?0:stock});
+  });
+  var methods=document.getElementById('payMethods').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+  return {name:document.getElementById('name').value.trim(),
+    city:document.getElementById('city').value.trim(),
+    hours:document.getElementById('hours').value.trim(),
+    adminWa:document.getElementById('adminWa').value.trim(),
+    products:products,
+    shipping:{cost:document.getElementById('shipCost').value.trim(),
+      eta:document.getElementById('shipEta').value.trim(),
+      freeMin:parseInt(document.getElementById('freeMin').value,10)||0,
+      couriers:['JNE REG','J&T','AnterAja']},
+    payment:{methods:methods}};
+}
+document.getElementById('fillBtn').onclick=function(){
+  document.getElementById('name').value='Toko Baju Kirana';
+  document.getElementById('city').value='Bandung';
+  document.getElementById('hours').value='Senin-Sabtu 09.00-21.00 WIB, Minggu 10.00-18.00 WIB';
+  document.getElementById('adminWa').value='https://wa.me/6281200000000';
+  document.getElementById('shipCost').value='Jabodetabek Rp 10.000, Jawa Rp 15.000-25.000, luar Jawa Rp 25.000-35.000';
+  document.getElementById('shipEta').value='Jawa 1-3 hari, luar Jawa 3-7 hari';
+  document.getElementById('payMethods').value='QRIS, Transfer BCA 1234567890 a.n. Kirana, COD khusus Bandung';
+  var demo=[['Kemeja Linen Pria',189000,12],['Dress Floral Wanita',249000,8],['Hoodie Polos',159000,20],['Celana Chino',179000,5],['Kaos Oversize',99000,30]];
+  prodBox.querySelectorAll('.prod').forEach(function(row,idx){
+    if(!demo[idx])return;
+    row.querySelector('[data-f=name]').value=demo[idx][0];
+    row.querySelector('[data-f=price]').value=demo[idx][1];
+    row.querySelector('[data-f=stock]').value=demo[idx][2];
+  });
+};
+document.getElementById('buildBtn').onclick=async function(){
+  var errs=document.getElementById('errors');errs.textContent='';
+  var shop=readForm();
+  try{
+    var r=await fetch('/api/build',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({shop:shop})});
+    var j=await r.json();
+    if(!r.ok){errs.textContent=(j.errors||[j.error||'Gagal']).join(' · ');return;}
+    document.getElementById('botUrl').value=j.url;
+    document.getElementById('tryBtn').href=j.url;
+    document.getElementById('result').style.display='block';
+    document.getElementById('result').scrollIntoView({behavior:'smooth'});
+  }catch(e){errs.textContent='Bot lagi nggak bisa dihubungi. Coba lagi sebentar.';}
+};
+document.getElementById('copyBtn').onclick=function(){
+  var u=document.getElementById('botUrl');u.select();
+  if(navigator.clipboard)navigator.clipboard.writeText(u.value);
+  else document.execCommand('copy');
+  document.getElementById('copyBtn').textContent='Disalin ✓';
+};
+</script>
+</body>
+</html>
